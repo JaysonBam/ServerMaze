@@ -233,7 +233,7 @@ function update() {
         //alert('Start level ' + temp);
         console.log(`Starting game again.`);
 
-        sleep(1000);
+        // sleep(1000);
         level++;
         gridSize += 4;
         startGame();
@@ -243,7 +243,7 @@ function update() {
         const [trapX, trapY] = trap;
         if (trapX === Number(x.toFixed(9)) && trapY === Number(y.toFixed(9))) {
             //alert('Down to ' + lives + ' lives');
-            sleep(1000);
+            // sleep(1000);
             //tell te remove heart
             lives--;
             startGame(gridSize);
