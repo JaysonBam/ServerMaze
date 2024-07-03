@@ -77,6 +77,7 @@ server.listen(port, () => {
 
 
 function startGame() {
+
     console.log(`Starting new game: ${gridSize}`);
 
     // Tell game to start new game
@@ -87,6 +88,11 @@ function startGame() {
     // give endx and endy to draw hole
     // getTraps();
     // get trap vector to draw trap
+
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
+    io.emit('getInitialData', data);
+
+    io.emit('start');
 }
 
 function getInitialData() {
