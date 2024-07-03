@@ -149,6 +149,10 @@
                 console.log(`Data received: ${JSON.stringify(data)}`);
             });
 
+            socket.on('remove_heart', () => {
+                
+            });
+
             function drawMaze() {
 
                 for (let i = 0; i < vector2D.length; i++) {
@@ -262,11 +266,17 @@
                 hearts = heartsContainer.getElementsByTagName('img');
             }
 
-            function removeHeart() {
+            // function removeHeart() {
+            //     if (hearts.length > 0) {
+            //         hearts[hearts.length - 1].remove();
+            //     }
+            // }
+
+            socket.on('remove_heart', () => {
                 if (hearts.length > 0) {
                     hearts[hearts.length - 1].remove();
                 }
-            }
+            });
 
             document.getElementById('restartButton').addEventListener('click', () => {
                 requestDeviceOrientation();          

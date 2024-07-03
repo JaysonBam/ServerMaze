@@ -265,7 +265,10 @@ function update() {
         if (trapX === Number(x.toFixed(9)) && trapY === Number(y.toFixed(9))) {
             //alert('Down to ' + lives + ' lives');
             // sleep(1000);
-            //tell te remove heart
+
+            // Remove heart
+            io.emit('remove_heart');
+
             lives--;
             startGame(gridSize);
             break; // Exit the loop once we find the trap
