@@ -167,7 +167,7 @@ function update() {
         acc.beta += curr.beta;
         acc.gamma += curr.gamma;
         return acc;
-    }, { beta: 0, gamma: 0, z: 0 });
+    }, { beta: 0, gamma: 0});
     averageData.beta /= globalDataAccumulator.length;
     averageData.gamma /= globalDataAccumulator.length;
     betta = averageData.beta;
@@ -177,6 +177,8 @@ function update() {
 
     dx += Math.sin(gamma / 180 * Math.PI);
     dy += Math.sin(betta / 180 * Math.PI);
+
+    console.log(`dx, dy: ${dx}, ${dy}`);
 
     while (dx >= 0.1) {
         dx -= 0.1;
