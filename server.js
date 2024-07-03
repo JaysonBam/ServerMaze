@@ -281,6 +281,8 @@ function update() {
             // Remove heart
             io.emit('remove_heart', (lives));
 
+            console.log(`Lives left: ${lives}`);
+
             startGame(gridSize);
             break; // Exit the loop once we find the trap
         }
