@@ -45,19 +45,19 @@ io.on('connection', (socket) => {
 
     console.log('User connected');
 
+    socket.on('beta_gamma', (data) => {
+        globalDataAccumulator.push(data);
+        if (globalDataAccumulator.length > MAX_DATA_POINTS) {
+            globalDataAccumulator.shift(); // Remove oldest data
+        }
+    
+        console.log(`Beta, gamma: ${JSON.stringify(data)}`);
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected.')
     })
     
-});
-
-io.on('beta_gamma', (data) => {
-    globalDataAccumulator.push(data);
-    if (globalDataAccumulator.length > MAX_DATA_POINTS) {
-        globalDataAccumulator.shift(); // Remove oldest data
-    }
-
-    console.log(`Beta, gamma: ${JSON.stringify(data)}`);
 });
 
 // Run servers
