@@ -203,7 +203,7 @@
             // }
 
             socket.on('pos_update', (data) => {
-                tx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
                 drawBall(data.x, data.y, '#c80000');
             });
     
