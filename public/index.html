@@ -188,6 +188,12 @@
                 let betta = event.beta;
                 let gamma = event.gamma;
                 //give betta and gamma
+
+                data = {beta:betta, gamma:gamma};
+
+                console.log(`Sending bet-gamma data: ${JSON.stringify(data)}`);
+
+                socket.emit('beta_gamma', data);
             }
 
             function Update(){//when reqeusted

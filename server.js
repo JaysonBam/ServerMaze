@@ -44,6 +44,11 @@ io.on('connection', (socket) => {
     io.emit('start');
 
     console.log('User connected');
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected.')
+    })
+    
 });
 
 io.on('beta_gamma', (data) => {
