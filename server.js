@@ -163,6 +163,16 @@ function update() {
 
     //ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
 
+    const averageData = globalDataAccumulator.reduce((acc, curr) => {
+        acc.beta += curr.beta;
+        acc.gamma += curr.gamma;
+        return acc;
+    }, { beta: 0, gamma: 0, z: 0 });
+    averageData.beta /= globalDataAccumulator.length;
+    averageData.gamma /= globalDataAccumulator.length;
+    beta = averageData.beta;
+    gamma = averageData.gamma;
+
     dx += Math.sin(gamma / 180 * Math.PI);
     dy += Math.sin(betta / 180 * Math.PI);
 
