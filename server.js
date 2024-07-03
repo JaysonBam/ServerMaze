@@ -1,3 +1,14 @@
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+const cors = require('cors');
+app.use(cors());
+
 let gridSize;
 let dx;
 let dy;
@@ -16,6 +27,28 @@ let hearts;
 startGame(5);
 setInterval(update, 150);
 
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'game.html'));
+});
+
+// Sockets
+io.on('connection', (socket) => {
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
+    io.emit('getInitialData', data);
+
+    io.emit('start');
+
+    console.log('User connected');
+});
+
+// Run serverS
+const port = 8080;
+server.listen(port, () => {
+    console.log(`listening on : ${port}`);
+});
+
+
 function startGame(difficulty) {
     // Tell game to start new game
     getInitialData(difficulty);
@@ -23,7 +56,7 @@ function startGame(difficulty) {
     // Give vector and gridsize to draw maze        
     // give x,y to draw ball
     // give endx and endy to draw hole
-    getTraps();
+    // getTraps();
     // get trap vector to draw trap
 }
 
