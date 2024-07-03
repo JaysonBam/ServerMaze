@@ -257,7 +257,3 @@ function update() {
         }
     }
 }
-
-//event that get all orientations and avarge
-//betta = avarage betta
-//gamma = avarge gamma
