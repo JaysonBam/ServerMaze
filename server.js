@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
             globalDataAccumulator.shift(); // Remove oldest data
         }
     
-        console.log(`Beta, gamma: ${JSON.stringify(data)}`);
+        // console.log(`Beta, gamma: ${JSON.stringify(data)}`);
     });
 
     socket.on('disconnect', () => {
@@ -157,6 +157,8 @@ function shuffleDirections() {
 }
 
 function update() {
+    console.log('Update called');
+
     if (lives === 0){
         return;
     }  
@@ -170,8 +172,10 @@ function update() {
     }, { beta: 0, gamma: 0, z: 0 });
     averageData.beta /= globalDataAccumulator.length;
     averageData.gamma /= globalDataAccumulator.length;
-    beta = averageData.beta;
+    betta = averageData.beta;
     gamma = averageData.gamma;
+
+    console.log(`Average values: ${betta, gamma}`);
 
     dx += Math.sin(gamma / 180 * Math.PI);
     dy += Math.sin(betta / 180 * Math.PI);
