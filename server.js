@@ -26,7 +26,7 @@ let hearts;
 
 // Beta-gamma accumulator
 const globalDataAccumulator = [];
-const MAX_DATA_POINTS = 1;
+let MAX_DATA_POINTS = 1;
 
 // Player count
 let playerCount = 0;
