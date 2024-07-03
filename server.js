@@ -175,8 +175,8 @@ function update() {
 
     console.log(`Average values: ${betta}, ${gamma}`);
 
-    dx += Math.sin(gamma / 180 * Math.PI);
-    dy += Math.sin(betta / 180 * Math.PI);
+    dx += Math.sin((gamma || 0) / 180 * Math.PI); // Use 0 if gamma is undefined
+    dy += Math.sin((betta || 0) / 180 * Math.PI);
 
     console.log(`dx, dy: ${dx}, ${dy}`);
 
