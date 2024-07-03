@@ -267,7 +267,7 @@ function update() {
             // sleep(1000);
 
             // Remove heart
-            io.emit('remove_heart');
+            io.emit('remove_heart', (lives));
 
             lives--;
             startGame(gridSize);
