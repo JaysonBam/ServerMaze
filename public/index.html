@@ -84,6 +84,8 @@
             const canvasContainer = document.getElementById('canvasContainer');
             const ctx = canvas.getContext('2d');
             const size = Math.min(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
+            const heartsContainer = document.getElementById('hearts');
+            
             canvas.width = size;
             canvas.height = size;
 
@@ -149,21 +151,28 @@
                 console.log(`Data received: ${JSON.stringify(data)}`);
             });
 
+            // socket.on('remove_heart', (lives) => {
+            //     while (hearts.length > 0) {
+            //         hearts[hearts.length - 1].remove();
+            //     }
+            //     const heartsContainer = document.getElementById('hearts');
+            //     heartsContainer.innerHTML = '';
+            //     for (let i = 0; i < lives; i++) {
+            //         const heart = document.createElement('img');
+            //         heart.src = 'heart.png';
+            //         heart.alt = 'Heart';
+            //         heart.width = 30;
+            //         heart.height = 30;
+            //         heartsContainer.appendChild(heart);
+            //     }
+            //     hearts = heartsContainer.getElementsByTagName('img');
+            // });
+
+            const hearts = Array.from(heartsContainer.getElementsByTagName('img')); // Convert to array
             socket.on('remove_heart', (lives) => {
-                while (hearts.length > 0) {
-                    hearts[hearts.length - 1].remove();
-                }
-                const heartsContainer = document.getElementById('hearts');
-                heartsContainer.innerHTML = '';
-                for (let i = 0; i < lives; i++) {
-                    const heart = document.createElement('img');
-                    heart.src = 'heart.png';
-                    heart.alt = 'Heart';
-                    heart.width = 30;
-                    heart.height = 30;
-                    heartsContainer.appendChild(heart);
-                }
-                hearts = heartsContainer.getElementsByTagName('img');
+                hearts.forEach((heart, index) => {
+                    heart.style.display = index < lives ? 'inline' : 'none'; // Show/hide based on lives
+                });
             });
 
             function drawMaze() {
@@ -249,7 +258,7 @@
 
             function resetHearts() {
                 let lives = 5;
-                const heartsContainer = document.getElementById('hearts');
+                // const heartsContainer = document.getElementById('hearts');
                 heartsContainer.innerHTML = '';
                 for (let i = 0; i < 5; i++) {
                     const heart = document.createElement('img');
@@ -268,23 +277,6 @@
             //     }
             // }
 
-            socket.on('remove_heart', (lives) => {
-
-                while (hearts.length > 0) {
-                    hearts[hearts.length - 1].remove();
-                }
-                // const heartsContainer = document.getElementById('hearts');
-                // heartsContainer.innerHTML = '';
-                // for (let i = 0; i < lives; i++) {
-                //     const heart = document.createElement('img');
-                //     heart.src = 'heart.png';
-                //     heart.alt = 'Heart';
-                //     heart.width = 30;
-                //     heart.height = 30;
-                //     heartsContainer.appendChild(heart);
-                // }
-                hearts = heartsContainer.getElementsByTagName('img');
-            });
 
             document.getElementById('restartButton').addEventListener('click', () => {
                 requestDeviceOrientation();          
