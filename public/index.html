@@ -206,6 +206,8 @@
                 console.log(`x,y: ${data.x}, ${data.y}`);
 
                 ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                x = data.x;
+                y = data.y;
                 drawBall(data.x, data.y, '#c80000');
             });
     
