@@ -232,6 +232,8 @@ function update() {
     if (Number(x.toFixed(9)) === EndX && Number(y.toFixed(9)) === EndY) {
         let temp = level + 1;
         //alert('Start level ' + temp);
+        console.log(`Starting game again.`);
+
         sleep(1000);
         level++;
         startGame(gridSize + 4);
