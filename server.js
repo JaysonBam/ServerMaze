@@ -237,7 +237,7 @@ function update() {
         sleep(1000);
         level++;
         gridSize += 4;
-        startGame(gridSize);
+        startGame(9);
     }
 
     for (let trap of traps) {
