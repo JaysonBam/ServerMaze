@@ -9,7 +9,7 @@ const io = socketIo(server);
 const cors = require('cors');
 app.use(cors());
 
-let gridSize;
+let gridSize = 5;
 let dx;
 let dy;
 let betta;
@@ -31,7 +31,7 @@ let MAX_DATA_POINTS = 1;
 // Player count
 let playerCount = 0;
 
-startGame(5);
+startGame();
 setInterval(update, 150);
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -76,11 +76,11 @@ server.listen(port, () => {
 });
 
 
-function startGame(difficulty) {
-    console.log(`Starting new game: ${difficulty}`);
+function startGame() {
+    console.log(`Starting new game: ${gridSize}`);
 
     // Tell game to start new game
-    getInitialData(difficulty);
+    getInitialData();
     generateMaze();
     // Give vector and gridsize to draw maze        
     // give x,y to draw ball
@@ -89,8 +89,7 @@ function startGame(difficulty) {
     // get trap vector to draw trap
 }
 
-function getInitialData(difficulty) {
-    gridSize = difficulty;
+function getInitialData() {
     dx = 0;
     dy = 0;
     betta = 0;
@@ -237,7 +236,7 @@ function update() {
         sleep(1000);
         level++;
         gridSize += 4;
-        startGame(9);
+        startGame();
     }
 
     for (let trap of traps) {
