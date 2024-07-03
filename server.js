@@ -26,7 +26,10 @@ let hearts;
 
 // Beta-gamma accumulator
 const globalDataAccumulator = [];
-const MAX_DATA_POINTS = 20;
+const MAX_DATA_POINTS = 1;
+
+// Player count
+let playerCount = 0;
 
 startGame(5);
 setInterval(update, 150);
@@ -38,6 +41,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Sockets
 io.on('connection', (socket) => {
+    player += 1;
+    MAX_DATA_POINTS = playerCount * 3;
+
     data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
     io.emit('getInitialData', data);
 
@@ -56,6 +62,9 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('User disconnected.')
+        playerCount -= 1;
+
+        MAX_DATA_POINTS = playerCount * 3;
     })
     
 });
