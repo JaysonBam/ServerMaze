@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Sockets
 io.on('connection', (socket) => {
     playerCount += 1;
-    MAX_DATA_POINTS = playerCount * 3;
+    MAX_DATA_POINTS = playerCount;
 
     data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
     io.emit('getInitialData', data);
