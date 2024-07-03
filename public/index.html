@@ -273,16 +273,16 @@
                 while (hearts.length > 0) {
                     hearts[hearts.length - 1].remove();
                 }
-                const heartsContainer = document.getElementById('hearts');
-                heartsContainer.innerHTML = '';
-                for (let i = 0; i < lives; i++) {
-                    const heart = document.createElement('img');
-                    heart.src = 'heart.png';
-                    heart.alt = 'Heart';
-                    heart.width = 30;
-                    heart.height = 30;
-                    heartsContainer.appendChild(heart);
-                }
+                // const heartsContainer = document.getElementById('hearts');
+                // heartsContainer.innerHTML = '';
+                // for (let i = 0; i < lives; i++) {
+                //     const heart = document.createElement('img');
+                //     heart.src = 'heart.png';
+                //     heart.alt = 'Heart';
+                //     heart.width = 30;
+                //     heart.height = 30;
+                //     heartsContainer.appendChild(heart);
+                // }
                 hearts = heartsContainer.getElementsByTagName('img');
             });
 
