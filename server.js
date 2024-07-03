@@ -157,8 +157,6 @@ function shuffleDirections() {
 }
 
 function update() {
-    console.log('Update called');
-
     if (lives === 0){
         return;
     }  
@@ -175,7 +173,7 @@ function update() {
     betta = averageData.beta;
     gamma = averageData.gamma;
 
-    console.log(`Average values: ${betta, gamma}`);
+    console.log(`Average values: ${betta}, ${gamma}`);
 
     dx += Math.sin(gamma / 180 * Math.PI);
     dy += Math.sin(betta / 180 * Math.PI);
@@ -215,7 +213,8 @@ function update() {
         return Number(num.toFixed(9)) === Number(num.toFixed(0));
     }
 
-    //give x, y to draw
+    data = {x:x, y:y};
+    io.emit('pos_update', data);
 
     if (Number(x.toFixed(9)) === EndX && Number(y.toFixed(9)) === EndY) {
         let temp = level + 1;

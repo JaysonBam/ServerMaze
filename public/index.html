@@ -196,11 +196,16 @@
                 socket.emit('beta_gamma', data);
             }
 
-            function Update(){//when reqeusted
+            // function Update(){//when reqeusted
+            //     tx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
+            //     //get x and y
+            //     drawBall(x, y, '#c80000');
+            // }
+
+            socket.on('pos_update', (data) => {
                 tx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
-                //get x and y
-                drawBall(x, y, '#c80000');
-            }
+                drawBall(data.x, data.y, '#c80000');
+            });
     
             async function requestDeviceOrientation() {
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
