@@ -64,6 +64,11 @@ io.on('connection', (socket) => {
         console.log('User disconnected.')
         playerCount -= 1;
 
+        if (playerCount <= 0) {
+            playerCount = 0;
+            resetServer();
+        }
+
         MAX_DATA_POINTS = playerCount * 3;
     })
     
@@ -77,6 +82,10 @@ server.listen(port, () => {
 
 
 function startGame() {
+
+    if (lives < 1) {
+        resetServer();
+    }
 
     console.log(`Starting new game: ${gridSize}`);
 
@@ -266,12 +275,20 @@ function update() {
             //alert('Down to ' + lives + ' lives');
             // sleep(1000);
 
+            lives--;
+
             // Remove heart
             io.emit('remove_heart', (lives));
 
-            lives--;
             startGame(gridSize);
             break; // Exit the loop once we find the trap
         }
     }
+}
+
+function resetServer() {
+    gridSize = 5;
+    lives = 5;
+    level = 1;
+    startGame();
 }
