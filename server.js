@@ -86,7 +86,7 @@ function startGame() {
     // Give vector and gridsize to draw maze        
     // give x,y to draw ball
     // give endx and endy to draw hole
-    // getTraps();
+    getTraps();
     // get trap vector to draw trap
 
     data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
