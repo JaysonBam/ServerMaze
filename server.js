@@ -24,13 +24,17 @@ let lives = 5;
 let traps = [];
 let hearts;
 
+// Beta-gamma accumulator
+const globalDataAccumulator = [];
+const MAX_DATA_POINTS = 20;
+
 startGame(5);
 setInterval(update, 150);
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'game.html'));
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'game.html'));
+// });
 
 // Sockets
 io.on('connection', (socket) => {
@@ -42,7 +46,16 @@ io.on('connection', (socket) => {
     console.log('User connected');
 });
 
-// Run serverS
+io.on('beta_gamma', (data) => {
+    globalDataAccumulator.push(data);
+    if (globalDataAccumulator.length > MAX_DATA_POINTS) {
+        globalDataAccumulator.shift(); // Remove oldest data
+    }
+
+    console.log(`Beta, gamma: ${JSON.stringify(data)}`);
+});
+
+// Run servers
 const port = 8080;
 server.listen(port, () => {
     console.log(`listening on : ${port}`);
