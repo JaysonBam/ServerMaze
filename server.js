@@ -77,6 +77,8 @@ server.listen(port, () => {
 
 
 function startGame(difficulty) {
+    console.log(`Starting new game: ${difficulty}`);
+
     // Tell game to start new game
     getInitialData(difficulty);
     generateMaze();
