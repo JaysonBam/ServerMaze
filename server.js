@@ -172,6 +172,21 @@ function shuffleDirections() {
     return directions;
 }
 
+function getTraps(){
+    for (let i = 1; i < vector2D.length - 1; i++) {
+        for (let j = 1; j < vector2D[i].length - 1; j++) {
+            var tel = 0;
+            if (vector2D[i+1][j] === 1) tel++;
+            if (vector2D[i-1][j] === 1) tel++;
+            if (vector2D[i][j+1] === 1) tel++;
+            if (vector2D[i][j-1] === 1) tel++;
+
+            if (tel === 3 && !(EndX === j && EndY === i) && vector2D[i][j] === 0 && Math.random() < 0.25)
+                traps.push([j,i]);
+        }
+    }
+}
+
 function update() {
     if (lives === 0){
         return;
