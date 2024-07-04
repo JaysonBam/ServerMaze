@@ -67,6 +67,7 @@
     </div>
     <footer>
         <div class="buttons">
+            <audio id="audioPlayer" src="Rick Astley - Never Gonna Give You Up (Instrumental) HD Audio.mp3"></audio>
             <button id="restartButton" style="display: none;">Restart</button>
             <button id="btnPermission">Allow permission</button>
             <button id="startButton" style="display: none;">Start/Pause</button>
@@ -78,7 +79,7 @@
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
+            const audioPlayer = document.getElementById('audioPlayer');
             const socket = io();
 
             const canvas = document.getElementById('canvas');
@@ -381,6 +382,10 @@
 
             document.getElementById('startButton').addEventListener('click', () => {
                 socket.emit('startButton');
+                audioPlayer.play().catch(error => {
+                    console.log('Play was prevented:', error);
+                });
+                audioPlayer.pause();
             });
 
             document.getElementById('opposeButton').addEventListener('click', () => {
