@@ -20,9 +20,14 @@ let EndX;
 let EndY;
 let vector2D;
 let level = 1;
-let lives = 5;
 let traps = [];
-let hearts;
+let boosts = [];
+let time = 90000;
+let speed = 1;
+let speedCounter = 0;
+let start = false;
+
+const tickSpeed = 150;
 
 // Beta-gamma accumulator
 const globalDataAccumulator = [];
@@ -30,6 +35,7 @@ let MAX_DATA_POINTS = 1;
 
 // Player count
 let playerCount = 0;
+const players = {};
 
 startGame();
 setInterval(update, 150);
@@ -42,14 +48,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Sockets
 io.on('connection', (socket) => {
     playerCount += 1;
-    MAX_DATA_POINTS = playerCount;
 
-    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
+    // const currentPlayerCount = Object.keys(players).length + 1;
+
+    let maxPlayerCount = 5;
+    if (playerCount > maxPlayerCount) {
+        console.log(`Maximum player count reached (${maxPlayerCount}). Disconnecting user: ${socket.id}`);
+        socket.disconnect(true);
+        playerCount -= 1;
+        return;
+    }
+
+    MAX_DATA_POINTS = playerCount * 4;
+
+    let host = (playerCount == 1);
+
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps, host:host, boosts:boosts};
     io.emit('getInitialData', data);
 
     io.emit('start');
 
-    console.log('User connected');
+    console.log(`${socket.id} connected.`);
+
+    players[socket.id] = {id:socket.id};
 
     socket.on('beta_gamma', (data) => {
         globalDataAccumulator.push(data);
@@ -61,17 +82,31 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected.')
+        console.log(`${socket.id} disconnected.`)
         playerCount -= 1;
+
+        delete players[socket.id];
 
         if (playerCount <= 0) {
             playerCount = 0;
             resetServer();
         }
 
-        MAX_DATA_POINTS = playerCount * 3;
+        MAX_DATA_POINTS = playerCount * 4;
     })
+
+    socket.on('resetServer', () => {
+        resetServer();
+        start = false;
     
+        console.log('Server reset!');
+    });
+
+    socket.on('startButton', () => {
+        start = !start;
+
+        console.log(`Start: ${start}`)
+    })
 });
 
 // Run servers
@@ -83,10 +118,6 @@ server.listen(port, () => {
 
 function startGame() {
 
-    if (lives < 1) {
-        resetServer();
-    }
-
     console.log(`Starting new game: ${gridSize}`);
 
     // Tell game to start new game
@@ -96,10 +127,11 @@ function startGame() {
     // give x,y to draw ball
     // give endx and endy to draw hole
     traps = [];
+    boosts = [];
     getTraps();
     // get trap vector to draw trap
 
-    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps};
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps, boosts:boosts};
     io.emit('getInitialData', data);
 
     io.emit('start');
@@ -191,16 +223,31 @@ function getTraps(){
             if (vector2D[i][j+1] === 1) tel++;
             if (vector2D[i][j-1] === 1) tel++;
 
-            if (tel === 3 && !(EndX === j && EndY === i) && vector2D[i][j] === 0 && Math.random() < 0.25)
-                traps.push([j,i]);
+            r = Math.random();
+            if (tel === 3 && !(EndX === j && EndY === i) && vector2D[i][j] === 0 && r < 0.30) {
+                if (r < 0.10) { // 10% chance for boost
+                    boosts.push([j, i]);
+                } else { // Remaining 20% chance for trap
+                    traps.push([j, i]);
+                }
+            }
         }
     }
 }
 
 function update() {
-    if (lives === 0){
+    if (!start) return;
+
+    time-=tickSpeed;
+    speedCounter-=tickSpeed;
+    if (time < 0){
         return;
-    }  
+    }
+    if (speedCounter<0){
+        speed = 1;
+    }
+
+    console.log('Time: ' + time + '\tLevel: ' + level);
 
     //ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
 
@@ -214,12 +261,12 @@ function update() {
     betta = averageData.beta;
     gamma = averageData.gamma;
 
-    console.log(`Average values: ${betta}, ${gamma}`);
+    // console.log(`Average values: ${betta}, ${gamma}`);
 
-    dx += Math.sin((gamma || 0) / 180 * Math.PI); // Use 0 if gamma is undefined
-    dy += Math.sin((betta || 0) / 180 * Math.PI);
+    dx += speed*Math.sin((gamma || 0) / 180 * Math.PI); // Use 0 if gamma is undefined
+    dy += speed*Math.sin((betta || 0) / 180 * Math.PI);
 
-    console.log(`dx, dy: ${dx}, ${dy}`);
+    // console.log(`dx, dy: ${dx}, ${dy}`);
 
     while (dx >= 0.1) {
         dx -= 0.1;
@@ -256,12 +303,10 @@ function update() {
         return Number(num.toFixed(9)) === Number(num.toFixed(0));
     }
 
-    data = {x:x, y:y};
+    data = {x:x, y:y, time:time, level:level};
     io.emit('pos_update', data);
 
     if (Number(x.toFixed(9)) === EndX && Number(y.toFixed(9)) === EndY) {
-        let temp = level + 1;
-        //alert('Start level ' + temp);
         console.log(`Starting game again.`);
 
         // sleep(1000);
@@ -273,25 +318,23 @@ function update() {
     for (let trap of traps) {
         const [trapX, trapY] = trap;
         if (trapX === Number(x.toFixed(9)) && trapY === Number(y.toFixed(9))) {
-            //alert('Down to ' + lives + ' lives');
-            // sleep(1000);
+            speed = 0.2;
+            speedCounter = 5000;
+        }
+    }
 
-            lives--;
-
-            // Remove heart
-            io.emit('remove_heart', (lives));
-
-            console.log(`Lives left: ${lives}`);
-
-            startGame(gridSize);
-            break; // Exit the loop once we find the trap
+    for (let boost of boosts) {
+        const [boostX, boostY] = boost;
+        if (boostX === Number(x.toFixed(9)) && boostY === Number(y.toFixed(9))) {
+            time += 5000;
+            boosts = boosts.filter(item => item !== boost);
         }
     }
 }
 
 function resetServer() {
     gridSize = 5;
-    lives = 5;
     level = 1;
+    time = 90000;
     startGame();
 }
