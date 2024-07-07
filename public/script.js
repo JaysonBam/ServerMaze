@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvasContainer = document.getElementById('canvasContainer');
     const ctx = canvas.getContext('2d');
     const size = Math.min(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
-
+    
     canvas.width = size;
     canvas.height = size;
 
@@ -26,12 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('start', () => {
         ctx.clearRect(0, 0, size, size);
-        blockSize = size / gridSize;
+        // getInitialData();
+
+        blockSize = size/gridSize;
         drawMaze();
         drawBall(x, y, '#c80000');
+        // drawBall(x, y, 'boost');
         drawBall(EndX, EndY, 'black');
+        // drawBall(EndX, EndY, 'boost');
         drawTraps();
         drawBoosts();
+
         console.log(`Start received`);
     });
 
@@ -46,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         boosts = data.boosts;
 
         if (data.host) {
+
             console.log('This client is host.')
 
             const btnPermission = document.getElementById('btnPermission');
@@ -67,7 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     function drawMaze() {
+
         for (let i = 0; i < vector2D.length; i++) {
             for (let j = 0; j < vector2D[i].length; j++) {
                 if (vector2D[i][j] == 1) {
@@ -76,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
+    
     function drawSquare(xPos, yPos, color) {
         ctx.fillStyle = color;
         ctx.fillRect(xPos * blockSize, yPos * blockSize, blockSize, blockSize);
@@ -86,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let trap of traps) {
             const xPos = trap[0];
             const yPos = trap[1];
-            drawBall(xPos, yPos, 'yellow');
+            drawBall(xPos, yPos, 'yellow'); // Replace 'red' with your desired color
         }
     }
 
@@ -94,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let boost of boosts) {
             const xPos = boost[0];
             const yPos = boost[1];
-            drawBall(xPos, yPos, 'boost');
+            drawBall(xPos, yPos, 'boost'); // Replace 'red' with your desired color
         }
     }
 
@@ -112,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fill();
             ctx.closePath();
 
+            // Draw the vertical line
             ctx.beginPath();
             ctx.moveTo(centerX, centerY - radius);
             ctx.lineTo(centerX, centerY + radius);
@@ -120,30 +129,34 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
             ctx.closePath();
 
+            // Draw the horizontal line
             ctx.beginPath();
             ctx.moveTo(centerX - radius, centerY);
             ctx.lineTo(centerX + radius, centerY);
             ctx.stroke();
             ctx.closePath();
 
+            // Draw the left curve
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, Math.PI / 4, (3 * Math.PI) / 4);
             ctx.stroke();
             ctx.closePath();
 
+            // Draw the right curve
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, (5 * Math.PI) / 4, (7 * Math.PI) / 4);
             ctx.stroke();
             ctx.closePath();
         } else if (color === 'yellow') {
             // Draw cobweb
+            const webColor = '#000000'; // White color for the cobweb
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             ctx.fillStyle = '#FFFFFF';
             ctx.fill();
             ctx.closePath();
 
-            ctx.strokeStyle = '#000000';
+            ctx.strokeStyle = webColor;
             ctx.lineWidth = 1;
 
             for (let i = 0; i < 8; i++) {
@@ -161,85 +174,139 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.closePath();
             }
         } else if (color === 'boost') {
-            const boostColor = '#FFFF00'; // Gold color for boost
+            const ballColor = 'orange';
+            // Create gradient for shading
+            const gradient = ctx.createRadialGradient(
+            centerX,
+            centerY,
+            radius / 4,
+            centerX,
+            centerY,
+            radius
+            );
+            gradient.addColorStop(0, "white"); // Highlight color
+            gradient.addColorStop(0.5, ballColor); // Main color
+            gradient.addColorStop(1, "darkorange"); // Shadow color
+
+            // Draw the ball with gradient
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = boostColor;
+            ctx.fillStyle = gradient;
             ctx.fill();
             ctx.closePath();
 
-            ctx.strokeStyle = '#000000';
-            ctx.lineWidth = 1;
-
-            for (let i = 0; i < 4; i++) {
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(centerX + radius * Math.cos(i * Math.PI / 2), centerY + radius * Math.sin(i * Math.PI / 2));
-                ctx.stroke();
-                ctx.closePath();
-            }
-
-            for (let i = 1; i < 2; i++) {
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius * i / 2, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.closePath();
-            }
+            // Add a highlight
+            ctx.beginPath();
+            ctx.arc(
+            centerX - radius / 3,
+            centerY - radius / 3,
+            radius / 4,
+            0,
+            Math.PI * 2
+            );
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // Highlight color with transparency
+            ctx.fill();
+            ctx.closePath();
         } else {
-            // Draw hole
+            // Default ball
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = color;
             ctx.fill();
             ctx.closePath();
         }
     }
 
-    function move(direction) {
+    function handleOrientation(event) {
+        let betta = event.beta;
+        let gamma = event.gamma;
+        //give betta and gamma
+
+        data = {beta:betta, gamma:gamma};
+
+        console.log(`Sending beta-gamma data: ${JSON.stringify(data)}`);
+
         if (offense) {
-            socket.emit('move', direction);
+            socket.emit('beta_gamma', data);
+            socket.emit('beta_gamma', data);
+            socket.emit('beta_gamma', data);
+        }
+
+        socket.emit('beta_gamma', data);
+    }
+
+    socket.on('pos_update', (data) => {
+        console.log(`x,y: ${data.x}, ${data.y}`);
+
+        timeleft = Math.round(data.time / 1000);
+        document.getElementById("levelTxt").innerText = `Level ${data.level}`;
+
+        const progressBar = document.getElementById("progress-bar");
+        const loadingText = document.getElementById("loading-text");
+        progressBar.style.width = timeleft + "%";
+        if (timeleft <= 30) {
+            progressBar.style.backgroundColor = "red"; // Change progress bar color to red
+        } else {
+            progressBar.style.backgroundColor = "#4CAF50";
+        }
+
+        ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
+        x = data.x;
+        y = data.y;
+
+        drawTraps();
+        drawBall(data.x, data.y, "#c80000");
+    });
+
+    async function requestDeviceOrientation() {
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            try {
+                const permissionState = await DeviceOrientationEvent.requestPermission();
+                if (permissionState === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                } else {
+                    alert('Permission was denied');
+                }
+            } catch (error) {
+                alert(error);
+            }
+        } else if ('DeviceOrientationEvent' in window) {
+            console.log("not iOS");
+            window.addEventListener('deviceorientation', handleOrientation);
+        } else {
+            alert('not supported');
         }
     }
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp' || e.key === 'w') {
-            move('up');
-        } else if (e.key === 'ArrowDown' || e.key === 's') {
-            move('down');
-        } else if (e.key === 'ArrowLeft' || e.key === 'a') {
-            move('left');
-        } else if (e.key === 'ArrowRight' || e.key === 'd') {
-            move('right');
-        }
+    document.getElementById('btnPermission').addEventListener('click', () => {
+        requestDeviceOrientation();          
     });
 
-    const btnPermission = document.getElementById('btnPermission');
-    btnPermission.addEventListener('click', () => {
-        socket.emit('requestPermission');
+    document.getElementById('restartButton').addEventListener('click', () => {
+        socket.emit('resetServer');
+        audioPlayer.pause();
+        rickroll = true;
     });
 
-    const restartButton = document.getElementById('restartButton');
-    restartButton.addEventListener('click', () => {
-        socket.emit('restart');
-    });
+    document.getElementById('startButton').addEventListener('click', () => {
+        socket.emit('startButton');
 
-    const startButton = document.getElementById('startButton');
-    startButton.addEventListener('click', () => {
         if (rickroll) {
-            audioPlayer.play();
+            audioPlayer.play().catch(error => {
+                console.log('Play was prevented:', error);
+            });
         } else {
             audioPlayer.pause();
         }
+
         rickroll = !rickroll;
     });
 
-    const opposeButton = document.getElementById('opposeButton');
-    opposeButton.addEventListener('click', () => {
-        move('oppose');
+    document.getElementById('opposeButton').addEventListener('click', () => {
+        offense = true;
     });
 
-    const defendButton = document.getElementById('defendButton');
-    defendButton.addEventListener('click', () => {
-        move('defend');
+    document.getElementById('defendButton').addEventListener('click', () => {
+        offense = false;
     });
 });
