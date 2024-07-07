@@ -1,0 +1,42 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    /* background-color: #b9b9b9; */
+    background-color: #ffffff;
+}
+header {
+    background-color: #b9b9b9;
+    color: #000;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+#canvasContainer {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#canvas {
+    background-color: #fff;
+    max-width: 100%;
+    max-height: 100%;
+}
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+footer {
+    background-color: #b9b9b9;
+    color: #000;
+    text-align: center;
+    padding: 10px;
+}
