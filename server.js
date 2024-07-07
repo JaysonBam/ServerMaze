@@ -1,164 +1,142 @@
-// Import required modules
-const express = require('express');  // Web framework for Node.js
-const path = require('path');  // Utilities for working with file and directory paths
-const http = require('http');  // HTTP server module
-const socketIo = require('socket.io');  // Real-time communication library
-const cors = require('cors');  // Middleware for handling Cross-Origin Resource Sharing
-
-// Initialize the Express application
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
 const app = express();
-
-// Create an HTTP server and integrate with the Express app
 const server = http.createServer(app);
-
-// Attach Socket.IO to the HTTP server for real-time communication
 const io = socketIo(server);
 
-// Enable CORS for all routes
+const cors = require('cors');
 app.use(cors());
 
-// Initialize game variables
-let gridSize = 5;  // Initial size of the game grid
-let dx, dy, betta, gamma, x, y, EndX, EndY, vector2D;  // Position and movement variables
-let level = 1;  // Initial game level
-let traps = [];  // Array to hold trap positions
-let boosts = [];  // Array to hold boost positions
-let time = 90000;  // Game time in milliseconds
-let speed = 1;  // Player speed
-let speedCounter = 0;  // Speed counter for temporary speed changes
-let start = false;  // Game start flag
+let gridSize = 5;
+let dx;
+let dy;
+let betta;
+let gamma;
+let x;
+let y;
+let EndX;
+let EndY;
+let vector2D;
+let level = 1;
+let traps = [];
+let boosts = [];
+let time = 90000;
+let speed = 1;
+let speedCounter = 0;
+let start = false;
 
-const tickSpeed = 150;  // Game update interval in milliseconds
+const tickSpeed = 150;
 
-// Array to accumulate beta-gamma data from players
+// Beta-gamma accumulator
 const globalDataAccumulator = [];
-let MAX_DATA_POINTS = 1;  // Maximum number of data points to store
+let MAX_DATA_POINTS = 1;
 
-// Player management variables
-let playerCount = 0;  // Current number of connected players
-const players = {};  // Object to store player data
+// Player count
+let playerCount = 0;
+const players = {};
 
-// Start the game and set up periodic updates
 startGame();
-setInterval(update, tickSpeed);
+setInterval(update, 150);
 
-// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'game.html'));
+// });
 
-// Handle Socket.IO connections
+// Sockets
 io.on('connection', (socket) => {
-    // Increment the player count on new connection
     playerCount += 1;
 
-    const maxPlayerCount = 5;  // Maximum number of players allowed
+    // const currentPlayerCount = Object.keys(players).length + 1;
+
+    let maxPlayerCount = 5;
     if (playerCount > maxPlayerCount) {
-        // If maximum player count is reached, disconnect the new player
         console.log(`Maximum player count reached (${maxPlayerCount}). Disconnecting user: ${socket.id}`);
         socket.disconnect(true);
         playerCount -= 1;
         return;
     }
 
-    // Update the maximum data points based on the number of players
     MAX_DATA_POINTS = playerCount * 4;
 
-    // Determine if the new player is the host (first player)
-    const host = (playerCount == 1);
+    let host = (playerCount == 1);
 
-    // Send initial game data to all clients
-    const data = {
-        vector2D,
-        gridSize,
-        x,
-        y,
-        EndX,
-        EndY,
-        traps,
-        host,
-        boosts
-    };
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps, host:host, boosts:boosts};
     io.emit('getInitialData', data);
+
     io.emit('start');
 
     console.log(`${socket.id} connected.`);
 
-    // Add the new player to the players object
-    players[socket.id] = { id: socket.id };
+    players[socket.id] = {id:socket.id};
 
-    // Handle beta-gamma data from clients
     socket.on('beta_gamma', (data) => {
         globalDataAccumulator.push(data);
-        // Remove the oldest data point if the accumulator exceeds the maximum
         if (globalDataAccumulator.length > MAX_DATA_POINTS) {
-            globalDataAccumulator.shift();
+            globalDataAccumulator.shift(); // Remove oldest data
         }
+    
+        // console.log(`Beta, gamma: ${JSON.stringify(data)}`);
     });
 
-    // Handle player disconnection
     socket.on('disconnect', () => {
-        console.log(`${socket.id} disconnected.`);
+        console.log(`${socket.id} disconnected.`)
         playerCount -= 1;
 
-        // Remove the player from the players object
         delete players[socket.id];
 
-        // Reset the server if no players are connected
         if (playerCount <= 0) {
             playerCount = 0;
             resetServer();
         }
 
-        // Update the maximum data points based on the new player count
         MAX_DATA_POINTS = playerCount * 4;
-    });
+    })
 
-    // Handle server reset request from clients
     socket.on('resetServer', () => {
         resetServer();
         start = false;
+    
         console.log('Server reset!');
     });
 
-    // Handle start button press from clients
     socket.on('startButton', () => {
         start = !start;
-        console.log(`Start: ${start}`);
-    });
+
+        console.log(`Start: ${start}`)
+    })
 });
 
-// Start the HTTP server on port 8080
+// Run servers
 const port = 8080;
 server.listen(port, () => {
-    console.log(`Listening on port: ${port}`);
+    console.log(`listening on : ${port}`);
 });
 
-// Function to start a new game
+
 function startGame() {
-    console.log(`Starting new game with grid size: ${gridSize}`);
+
+    console.log(`Starting new game: ${gridSize}`);
+
+    // Tell game to start new game
     getInitialData();
     generateMaze();
-
-    // Clear traps and boosts arrays
+    // Give vector and gridsize to draw maze        
+    // give x,y to draw ball
+    // give endx and endy to draw hole
     traps = [];
     boosts = [];
     getTraps();
+    // get trap vector to draw trap
 
-    // Send initial game data to all clients
-    const data = {
-        vector2D,
-        gridSize,
-        x,
-        y,
-        EndX,
-        EndY,
-        traps,
-        boosts
-    };
+    data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps, boosts:boosts};
     io.emit('getInitialData', data);
+
     io.emit('start');
 }
 
-// Function to initialize game data
 function getInitialData() {
     dx = 0;
     dy = 0;
@@ -170,18 +148,22 @@ function getInitialData() {
     EndY = gridSize - 2;
 }
 
-// Function to generate a maze using Depth-First Search algorithm
 function generateMaze() {
     vector2D = [];
     for (let i = 0; i < gridSize; i++) {
         vector2D[i] = [];
         for (let j = 0; j < gridSize; j++) {
-            vector2D[i][j] = (i % 2 !== 0 && j % 2 !== 0) ? 0 : 1;
+            if (i % 2 !== 0 && j % 2 !== 0) {
+                vector2D[i][j] = 0;
+            } else {
+                vector2D[i][j] = 1;
+            }
         }
     }
 
     const stack = [];
     const visited = [];
+
     for (let i = 0; i < gridSize; i++) {
         visited[i] = [];
         for (let j = 0; j < gridSize; j++) {
@@ -191,8 +173,12 @@ function generateMaze() {
 
     const startX = 1;
     const startY = 1;
+    const endX = gridSize - 2;
+    const endY = gridSize - 2;
+
     stack.push([startX, startY]);
     visited[startX][startY] = true;
+    endFound = false;
 
     while (stack.length > 0) {
         const current = stack.pop();
@@ -203,19 +189,20 @@ function generateMaze() {
             const newX = x + direction[0] * 2;
             const newY = y + direction[1] * 2;
 
+            
             if (newX >= 1 && newX < gridSize - 1 && newY >= 1 && newY < gridSize - 1 && !visited[newX][newY]) {
                 vector2D[(newX + x) / 2][(newY + y) / 2] = 0;
                 visited[newX][newY] = true;
                 stack.push([newX, newY]);
             }
         }
+
     }
 
-    vector2D[startX][startY] = 0;
-    vector2D[gridSize - 2][gridSize - 2] = 0;
+    vector2D[startX][startY] = 0; 
+    vector2D[endX][endY] = 0;
 }
 
-// Function to shuffle directions for maze generation
 function shuffleDirections() {
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
@@ -227,97 +214,127 @@ function shuffleDirections() {
     return directions;
 }
 
-// Function to generate traps and boosts in the maze
-function getTraps() {
+function getTraps(){
     for (let i = 1; i < vector2D.length - 1; i++) {
         for (let j = 1; j < vector2D[i].length - 1; j++) {
-            let adjacentWalls = 0;
-            if (vector2D[i + 1][j] === 1) adjacentWalls++;
-            if (vector2D[i - 1][j] === 1) adjacentWalls++;
-            if (vector2D[i][j + 1] === 1) adjacentWalls++;
-            if (vector2D[i][j - 1] === 1) adjacentWalls++;
+            var tel = 0;
+            if (vector2D[i+1][j] === 1) tel++;
+            if (vector2D[i-1][j] === 1) tel++;
+            if (vector2D[i][j+1] === 1) tel++;
+            if (vector2D[i][j-1] === 1) tel++;
 
-            const randomValue = Math.random();
-            if (adjacentWalls === 3 && !(EndX === j && EndY === i) && vector2D[i][j] === 0 && randomValue < 0.30) {
-                if (randomValue < 0.10) {
-                    boosts.push([j, i]);  // 10% chance for boost
-                } else {
-                    traps.push([j, i]);  // Remaining 20% chance for trap
+            r = Math.random();
+            if (tel === 3 && !(EndX === j && EndY === i) && vector2D[i][j] === 0 && r < 0.30) {
+                if (r < 0.10) { // 10% chance for boost
+                    boosts.push([j, i]);
+                } else { // Remaining 20% chance for trap
+                    traps.push([j, i]);
                 }
             }
         }
     }
 }
 
-// Function to update the game state at regular intervals
 function update() {
     if (!start) return;
 
-    time -= tickSpeed;
-    speedCounter -= tickSpeed;
-    if (time < 0) {
+    time-=tickSpeed;
+    speedCounter-=tickSpeed;
+    if (time < 0){
         return;
     }
-    if (speedCounter < 0) {
+    if (speedCounter<0){
         speed = 1;
     }
 
-    // Calculate average beta and gamma values from accumulated data
+    console.log('Time: ' + time + '\tLevel: ' + level);
+
+    //ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
+
     const averageData = globalDataAccumulator.reduce((acc, curr) => {
         acc.beta += curr.beta;
         acc.gamma += curr.gamma;
         return acc;
-    }, { beta: 0, gamma: 0 });
+    }, { beta: 0, gamma: 0});
+    averageData.beta /= globalDataAccumulator.length;
+    averageData.gamma /= globalDataAccumulator.length;
+    betta = averageData.beta;
+    gamma = averageData.gamma;
 
-    const dataLength = globalDataAccumulator.length || 1;
-    betta = averageData.beta / dataLength;
-    gamma = averageData.gamma / dataLength;
+    // console.log(`Average values: ${betta}, ${gamma}`);
 
-    const gammaDegrees = (gamma + 90) % 360;
-    dx = Math.cos(gammaDegrees * Math.PI / 180);
-    dy = Math.sin(gammaDegrees * Math.PI / 180);
+    dx += speed*Math.sin((gamma || 0) / 180 * Math.PI); // Use 0 if gamma is undefined
+    dy += speed*Math.sin((betta || 0) / 180 * Math.PI);
 
-    let distance = (Math.abs(betta) < 5) ? 0 : betta / 90;
-    x = Math.round(x + dx * distance * speed);
-    y = Math.round(y + dy * distance * speed);
+    // console.log(`dx, dy: ${dx}, ${dy}`);
 
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
-    if (x >= gridSize) x = gridSize - 1;
-    if (y >= gridSize) y = gridSize - 1;
+    while (dx >= 0.1) {
+        dx -= 0.1;
+        if (vector2D[Math.round(y)][Math.round(Math.ceil(x + 0.1-0.00001))] === 0 && vector2D[Math.round(y)][Math.round(Math.floor(x + 0.1-0.00001))] === 0 && isWholeNumber(y))
+            x+=0.1;
+        else
+            dx = 0;
+        
+    }
+    while (dx <= -0.1) {
+        dx += 0.1;
+        if (vector2D[Math.round(y)][Math.round(Math.ceil(x - 0.1+0.00001))] === 0 && vector2D[Math.round(y)][Math.round(Math.floor(x - 0.1+0.00001))] === 0 && (isWholeNumber(y)))
+            x-=0.1;
+        else 
+            dx = 0;     
 
-    if (vector2D[y][x] === 1) {
-        x = prevX;
-        y = prevY;
+    }
+    while (dy >= 0.1) {
+        dy -= 0.1;
+        if (vector2D[Math.round(Math.ceil(y + 0.1-0.00001))][Math.round(x)] === 0  && vector2D[Math.round(Math.floor(y + 0.1-0.00001))][Math.round(x)] === 0 && isWholeNumber(x))
+            y+=0.1;
+        else
+            dy = 0;
+    }
+    while (dy <= -0.1) {
+        dy += 0.1;
+        if (vector2D[Math.round(Math.ceil(y - 0.1 + 0.00001))][Math.round(x)] === 0  && vector2D[Math.round(Math.floor(y - 0.1 + 0.00001))][Math.round(x)] === 0 && isWholeNumber(x))
+            y-=0.1;
+        else
+            dy = 0;
     }
 
-    for (let boost of boosts) {
-        if (x === boost[0] && y === boost[1]) {
-            boosts = boosts.filter(b => b[0] !== x || b[1] !== y);
-            speed = 2;
-            speedCounter = 10000;
+    function isWholeNumber(num) {
+        return Number(num.toFixed(9)) === Number(num.toFixed(0));
+    }
+
+    data = {x:x, y:y, time:time, level:level};
+    io.emit('pos_update', data);
+
+    if (Number(x.toFixed(9)) === EndX && Number(y.toFixed(9)) === EndY) {
+        console.log(`Starting game again.`);
+
+        // sleep(1000);
+        level++;
+        gridSize += 4;
+        startGame();
+    }
+
+    for (let trap of traps) {
+        const [trapX, trapY] = trap;
+        if (trapX === Number(x.toFixed(9)) && trapY === Number(y.toFixed(9))) {
+            speed = 0.2;
+            speedCounter = 5000;
         }
     }
 
-    if (x === EndX && y === EndY) {
-        start = false;
-        level++;
-        gridSize += 2;
-        startGame();
-        return;
+    for (let boost of boosts) {
+        const [boostX, boostY] = boost;
+        if (boostX === Number(x.toFixed(9)) && boostY === Number(y.toFixed(9))) {
+            time += 5000;
+            boosts = boosts.filter(item => item !== boost);
+        }
     }
-
-    io.emit('gameData', { x, y, betta, gamma, traps, boosts, time });
 }
 
-// Function to reset the game server
 function resetServer() {
-    time = 90000;
     gridSize = 5;
     level = 1;
-    speed = 1;
-    speedCounter = 0;
-    start = false;
-    players = {};
+    time = 90000;
     startGame();
 }
