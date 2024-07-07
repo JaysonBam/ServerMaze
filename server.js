@@ -41,15 +41,11 @@ startGame();
 setInterval(update, 150);
 
 app.use(express.static(path.join(__dirname, 'public')));
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'game.html'));
-// });
+
 
 // Sockets
 io.on('connection', (socket) => {
     playerCount += 1;
-
-    // const currentPlayerCount = Object.keys(players).length + 1;
 
     let maxPlayerCount = 5;
     if (playerCount > maxPlayerCount) {
@@ -77,8 +73,6 @@ io.on('connection', (socket) => {
         if (globalDataAccumulator.length > MAX_DATA_POINTS) {
             globalDataAccumulator.shift(); // Remove oldest data
         }
-    
-        // console.log(`Beta, gamma: ${JSON.stringify(data)}`);
     });
 
     socket.on('disconnect', () => {
@@ -117,19 +111,13 @@ server.listen(port, () => {
 
 
 function startGame() {
-
     console.log(`Starting new game: ${gridSize}`);
-
-    // Tell game to start new game
     getInitialData();
     generateMaze();
-    // Give vector and gridsize to draw maze        
-    // give x,y to draw ball
-    // give endx and endy to draw hole
+
     traps = [];
     boosts = [];
     getTraps();
-    // get trap vector to draw trap
 
     data = {vector2D:vector2D, gridSize:gridSize, x:x, y:y, EndX:EndX, EndY:EndY, traps:traps, boosts:boosts};
     io.emit('getInitialData', data);
@@ -247,10 +235,6 @@ function update() {
         speed = 1;
     }
 
-    console.log('Time: ' + time + '\tLevel: ' + level);
-
-    //ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
-
     const averageData = globalDataAccumulator.reduce((acc, curr) => {
         acc.beta += curr.beta;
         acc.gamma += curr.gamma;
@@ -261,12 +245,8 @@ function update() {
     betta = averageData.beta;
     gamma = averageData.gamma;
 
-    // console.log(`Average values: ${betta}, ${gamma}`);
-
     dx += speed*Math.sin((gamma || 0) / 180 * Math.PI); // Use 0 if gamma is undefined
     dy += speed*Math.sin((betta || 0) / 180 * Math.PI);
-
-    // console.log(`dx, dy: ${dx}, ${dy}`);
 
     while (dx >= 0.1) {
         dx -= 0.1;
@@ -307,9 +287,6 @@ function update() {
     io.emit('pos_update', data);
 
     if (Number(x.toFixed(9)) === EndX && Number(y.toFixed(9)) === EndY) {
-        console.log(`Starting game again.`);
-
-        // sleep(1000);
         level++;
         gridSize += 4;
         startGame();

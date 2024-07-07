@@ -13,7 +13,6 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            /* background-color: #b9b9b9; */
             background-color: #ffffff;
         }
         header {
@@ -42,14 +41,6 @@
             display: flex;
             gap: 10px;
         }
-        /* .buttons button {
-            background-color: #c80000; 
-            color: white; 
-            padding: 10px 20px;
-            border-radius: 5px; 
-            font-size: 16px;
-            cursor: pointer;
-        } */
         footer {
             background-color: #b9b9b9;
             color: #000;
@@ -64,23 +55,10 @@
             <h1 id="editableText">mergetesting-production.up.railway.app</h1>
         </div>
     </header>
-    <!-- <div id="canvasContainer">
-        <canvas id="canvas"></canvas>
-    </div>
-    <footer>
-        <div class="buttons">
-            <button id="restartButton" style="display: none;">Restart</button>
-            <button id="btnPermission">Allow permission</button>
-            <button id="startButton" style="display: none;">Start/Pause</button>
-            <button id="opposeButton">Attack!</button>
-            <button id="defendButton">Defend!</button>
-        </div>
-    </footer> -->
+
     <header
       class="bg-white text-black py-4 flex flex-col justify-center items-center gap-6"
     >
-    <!-- <audio id="audioPlayer" src="Rick Astley - Never Gonna Give You Up (Instrumental) HD Audio.mp3"></audio> -->
-
       <div class="flex justify-between items-center w-full">
         <h3 class="text-xl font-semibold font-serif" id="levelTxt">Level: 0</h3>
         <button
@@ -168,49 +146,20 @@
             let boosts = [];
             let offense = true;
 
-            // requestDeviceOrientation();
-            // resetHearts();
-            // startGame(5);
-            // setInterval(update, 150);
-
-            // function startGame(difficulty) {
-            //     ctx.clearRect(0, 0, size, size);
-            //     getInitialData();
-            //     drawMaze();            
-            //     drawBall(x, y, '#c80000');
-            //     drawBall(EndX, EndY, 'black');
-            //     drawTraps();
-            //     resetHearts();
-            // }
-
+           
             socket.on('start', () => {
                 ctx.clearRect(0, 0, size, size);
-                // getInitialData();
 
                 blockSize = size/gridSize;
                 drawMaze();
                 drawBall(x, y, '#c80000');
-                // drawBall(x, y, 'boost');
                 drawBall(EndX, EndY, 'black');
-                // drawBall(EndX, EndY, 'boost');
                 drawTraps();
                 drawBoosts();
 
                 console.log(`Start received`);
             });
             
-            // function getInitialData() {
-            //     //get all this data
-            //     vector2D;
-            //     gridSize;
-            //     x;
-            //     y;
-            //     EndX;
-            //     EndY;
-            //     traps = []
-
-            //     blockSize = size/gridSize;
-            // }
             socket.on('getInitialData', (data) => {
                 vector2D = data.vector2D;
                 gridSize = data.gridSize;
@@ -242,26 +191,8 @@
 
                     alert(`Choose 'Attack!' or 'Defend!' \n - Attackers aim for the hole.\n - Defenders sabotage them.\n - Webs slow you down for 5 seconds.\n - Gold boosts add 5s.`);
                 }
-
-                // console.log(`Data received: ${JSON.stringify(data)}`);
             });
 
-            // socket.on('remove_heart', (lives) => {
-            //     while (hearts.length > 0) {
-            //         hearts[hearts.length - 1].remove();
-            //     }
-            //     const heartsContainer = document.getElementById('hearts');
-            //     heartsContainer.innerHTML = '';
-            //     for (let i = 0; i < lives; i++) {
-            //         const heart = document.createElement('img');
-            //         heart.src = 'heart.png';
-            //         heart.alt = 'Heart';
-            //         heart.width = 30;
-            //         heart.height = 30;
-            //         heartsContainer.appendChild(heart);
-            //     }
-            //     hearts = heartsContainer.getElementsByTagName('img');
-            // });
 
             function drawMaze() {
 
@@ -406,198 +337,7 @@
                 }
             }
      
-            // function drawBall(xPos, yPos, color) {
-            //     const centerX = xPos * blockSize + blockSize / 2;
-            //     const centerY = yPos * blockSize + blockSize / 2;
-            //     const radius = blockSize / 2 - 2;
-
-            //     if (color === "#c80000") {
-            //         // Draw basketball
-            //         /*
-            //         const ballColor = "red"; // Basketball orange color
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         ctx.fillStyle = ballColor;
-            //         ctx.fill();
-            //         ctx.closePath();
-
-            //         */
-            //         // Ball color
-            //         const ballColor = "orange";
-
-            //         // Create gradient for shading
-            //         const gradient = ctx.createRadialGradient(
-            //         centerX,
-            //         centerY,
-            //         radius / 4,
-            //         centerX,
-            //         centerY,
-            //         radius
-            //         );
-            //         gradient.addColorStop(0, "white"); // Highlight color
-            //         gradient.addColorStop(0.5, ballColor); // Main color
-            //         gradient.addColorStop(1, "darkorange"); // Shadow color
-
-            //         // Draw the ball with gradient
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         ctx.fillStyle = gradient;
-            //         ctx.fill();
-            //         ctx.closePath();
-
-            //         // Add a highlight
-            //         ctx.beginPath();
-            //         ctx.arc(
-            //         centerX - radius / 3,
-            //         centerY - radius / 3,
-            //         radius / 4,
-            //         0,
-            //         Math.PI * 2
-            //         );
-            //         ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // Highlight color with transparency
-            //         ctx.fill();
-            //         ctx.closePath();
-
-            //         // Draw the vertical line
-            //         /*
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX, centerY - radius);
-            //         ctx.lineTo(centerX, centerY + radius);
-            //         ctx.strokeStyle = "black";
-            //         ctx.lineWidth = 2;
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the horizontal line
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX - radius, centerY);
-            //         ctx.lineTo(centerX + radius, centerY);
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the left curve
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, Math.PI / 4, (3 * Math.PI) / 4);
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the right curve
-            //         ctx.beginPath();
-            //         ctx.arc(
-            //         centerX,
-            //         centerY,
-            //         radius,
-            //         (5 * Math.PI) / 4,
-            //         (7 * Math.PI) / 4
-            //         );
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         */
-            //     }else if(color="basketball"){
-            //         const ballColor = "yellow"; // Basketball orange color
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         ctx.fillStyle = ballColor;
-            //         ctx.fill();
-            //         ctx.closePath();
-
-            //         // Draw the vertical line
-                    
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX, centerY - radius);
-            //         ctx.lineTo(centerX, centerY + radius);
-            //         ctx.strokeStyle = "black";
-            //         ctx.lineWidth = 2;
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the horizontal line
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX - radius, centerY);
-            //         ctx.lineTo(centerX + radius, centerY);
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the left curve
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, Math.PI / 4, (3 * Math.PI) / 4);
-            //         ctx.stroke();
-            //         ctx.closePath();
-
-            //         // Draw the right curve
-            //         ctx.beginPath();
-            //         ctx.arc(
-            //         centerX,
-            //         centerY,
-            //         radius,
-            //         (5 * Math.PI) / 4,
-            //         (7 * Math.PI) / 4
-            //         );
-            //         ctx.stroke();
-            //         ctx.closePath();
-            //     } 
-                
-            //     else if (color === "yellow") {
-            //         // Draw cobweb
-            //         const webColor = "#000000"; // White color for the cobweb
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         ctx.fillStyle = "#FFFFFF";
-            //         ctx.fill();
-            //         ctx.closePath();
-
-            //         ctx.strokeStyle = webColor;
-            //         ctx.lineWidth = 1;
-
-            //         for (let i = 0; i < 8; i++) {
-            //         ctx.beginPath();
-            //         ctx.moveTo(centerX, centerY);
-            //         ctx.lineTo(
-            //             centerX + radius * Math.cos((i * Math.PI) / 4),
-            //             centerY + radius * Math.sin((i * Math.PI) / 4)
-            //         );
-            //         ctx.stroke();
-            //         ctx.closePath();
-            //         }
-
-            //         for (let i = 1; i < 4; i++) {
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, (radius * i) / 4, 0, Math.PI * 2);
-            //         ctx.stroke();
-            //         ctx.closePath();
-            //         }
-            //     } else if (color == 'end') {
-            //         // Default ball
-            //         //ctx.beginPath();
-            //         //ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         //ctx.fillStyle = color;
-            //         //ctx.fill();
-            //         //ctx.closePath();
-
-            //         //i am using default is Hole here
-
-            //         let gradient = ctx.createRadialGradient(
-            //         centerX,
-            //         centerY,
-            //         radius / 4,
-            //         centerX,
-            //         centerY,
-            //         radius
-            //         );
-
-            //         // Define gradient color stops
-            //         gradient.addColorStop(0, "black");
-            //         gradient.addColorStop(1, "gray");
-
-            //         ctx.beginPath();
-            //         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            //         ctx.fillStyle = gradient;
-            //         ctx.fill();
-            //         ctx.closePath();
-            //     }
-            // }
-
+          
             function handleOrientation(event) {
                 let betta = event.beta;
                 let gamma = event.gamma;
@@ -616,37 +356,10 @@
                 socket.emit('beta_gamma', data);
             }
 
-            // function Update(){//when reqeusted
-            //     tx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
-            //     //get x and y
-            //     drawBall(x, y, '#c80000');
-            // }
-
             socket.on('pos_update', (data) => {
-                // console.log(`x,y: ${data.x}, ${data.y}`);
-
-                // timeleft = Math.round(data.time/1000);
-                // editableText.innerText = 'Time: ' + timeleft + '\tLevel: ' + data.level;
-
-                // if (timeleft <= 0) {
-                //     alert(`Time's up!`);
-                // }
-
-                // ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
-                // x = data.x;
-                // y = data.y;
-
-                // drawTraps();
-                // drawBall(data.x, data.y, '#c80000');
-                console.log(`x,y: ${data.x}, ${data.y}`);
 
                 timeleft = Math.round(data.time / 1000);
                 document.getElementById("levelTxt").innerText = `Level ${data.level}`;
-
-                // if (timeleft <= 0) {
-                    // alert(`Time's up!`);
-                    
-                // }
 
                 const progressBar = document.getElementById("progress-bar");
                 const loadingText = document.getElementById("loading-text");
@@ -663,7 +376,6 @@
 
                 drawTraps();
                 drawBall(data.x, data.y, "#c80000");
-                // drawBall(data.x, data.y, 'basketball');
             });
     
             async function requestDeviceOrientation() {
@@ -685,11 +397,6 @@
                     alert('not supported');
                 }
             }
-            // function removeHeart() {
-            //     if (hearts.length > 0) {
-            //         hearts[hearts.length - 1].remove();
-            //     }
-            // }
 
 
             document.getElementById('btnPermission').addEventListener('click', () => {
@@ -698,22 +405,10 @@
 
             document.getElementById('restartButton').addEventListener('click', () => {
                 socket.emit('resetServer');
-                //audioPlayer.pause();
-                //rickroll = true;
             });
 
             document.getElementById('startButton').addEventListener('click', () => {
                 socket.emit('startButton');
-
-                // if (rickroll) {
-                //     audioPlayer.play().catch(error => {
-                //         console.log('Play was prevented:', error);
-                //     });
-                // } else {
-                //     audioPlayer.pause();
-                // }
-
-                // rickroll = !rickroll;
             });
 
             document.getElementById('opposeButton').addEventListener('click', () => {
@@ -724,9 +419,6 @@
                 offense = false;
             });
         });
-
-        // Example usage of removeHeart
-        // Call removeHeart() function whenever you want to remove a heart, e.g., on some event.
     </script>
 </body>
 </html>
