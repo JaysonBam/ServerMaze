@@ -5,6 +5,7 @@ body, html {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* background-color: #b9b9b9; */
     background-color: #ffffff;
 }
 header {
