@@ -1,13 +1,10 @@
-<!DOCTYPE html>
+explain index.html:<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Example</title>
-    <!-- External stylesheet for Tailwind CSS (unconventional use as script) -->
+    <title>Maze_v1</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Internal styles for layout and appearance -->
     <style>
         body, html {
             margin: 0;
@@ -53,73 +50,91 @@
     </style>
 </head>
 <body>
-    <!-- Header section -->
-    <header>
-        <!-- Placeholder for editable text -->
+    <header >
         <div id="editableTextContainer">
             <h1 id="editableText">mergetesting-production.up.railway.app</h1>
         </div>
     </header>
 
-    <!-- Second header section using Tailwind CSS classes for styling -->
-    <header class="bg-white text-black py-4 flex flex-col justify-center items-center gap-6">
-        <!-- Title and permission button -->
-        <div class="flex justify-between items-center w-full">
-            <h3 class="text-xl font-semibold font-serif" id="levelTxt">Level: 0</h3>
-            <button id="btnPermission" class="bg-blue-500 text-xs hover:bg-blue-700 text-white py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif">
-                Allow permission
-            </button>
-        </div>
+    <header
+      class="bg-white text-black py-4 flex flex-col justify-center items-center gap-6"
+    >
+      <div class="flex justify-between items-center w-full">
+        <h3 class="text-xl font-semibold font-serif" id="levelTxt">Level: 0</h3>
+        <button
+          id="btnPermission"
+          class="bg-blue-500 text-xs hover:bg-blue-700 text-white py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Allow permission
+        </button>
+      </div>
 
-        <!-- Progress bar for visual feedback -->
-        <div class="flex flex-col items-center justify-center mt-1">
-            <div class="relative w-72 h-6 bg-gray-200 rounded-full overflow-hidden">
-                <div id="progress-bar" class="absolute h-full bg-green-500 transition-width duration-1000 ease-in-out" style="width: 100%"></div>
-            </div>
+      <div class="flex flex-col items-center justify-center mt-1">
+        <div class="relative w-72 h-6 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            id="progress-bar"
+            class="absolute h-full bg-green-500 transition-width duration-1000 ease-in-out"
+            style="width: 100%"
+          ></div>
         </div>
+      </div>
 
-        <!-- Control buttons section -->
-        <div class="buttons">
-            <button id="restartButton" style="display: none" class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif">
-                Restart
-            </button>
-            <!-- Hidden start button (displayed later via JavaScript) -->
-            <button id="startButton" style="display: none" class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif">
-                Start/Pause
-            </button>
-            <!-- Buttons for offense and defense actions -->
-            <button id="opposeButton" class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 py-2 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif">
-                Attack!
-            </button>
-            <button id="defendButton" class="bg-white border border-gray-200 text-black py-2 px-6 bg-blue-600 text-xs hover:bg-gray-200 py-2 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif">
-                Defend!
-            </button>
-        </div>
+      <div class="buttons">
+        <button
+          id="restartButton"
+          style="display: none"
+          class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Restart
+        </button>
+        <!-- <button
+          id="btnPermission"
+          class="bg-blue-500 text-xs hover:bg-blue-700 text-white py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Allow permission
+        </button> -->
+        <button
+          id="startButton"
+          style="display: none"
+          class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 py-2 px-4 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Start/Pause
+        </button>
+        <button
+          id="opposeButton"
+          class="bg-white border border-gray-200 text-black py-2 px-6 text-xs hover:bg-gray-200 py-2 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Attack!
+        </button>
+        <button
+          id="defendButton"
+          class="bg-white border border-gray-200 text-black py-2 px-6 bg-blue-600 text-xs hover:bg-gray-200 py-2 rounded-xl shadow-lg transition duration-300 ease-in-out transform hover:scale-105 font-serif"
+        >
+          Defend!
+        </button>
+      </div>
     </header>
-
-    <!-- Canvas container for game visuals -->
     <div id="canvasContainer" class="p-4 mb-8">
         <canvas id="canvas"></canvas>
     </div>
 
-    <!-- Socket.IO library for real-time communication -->
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialization and event listeners for real-time interaction
 
-            // Socket.IO connection setup
+            // const audioPlayer = document.getElementById('audioPlayer');
+            let rickroll = true;
+
             const socket = io();
 
-            // Canvas setup and drawing functions
             const canvas = document.getElementById('canvas');
             const canvasContainer = document.getElementById('canvasContainer');
             const ctx = canvas.getContext('2d');
             const size = Math.min(canvasContainer.offsetWidth, canvasContainer.offsetHeight);
+            
             canvas.width = size;
             canvas.height = size;
 
-            // Variables for game state and visuals
             let gridSize;
             let x;
             let y;
@@ -131,24 +146,21 @@
             let boosts = [];
             let offense = true;
 
-            // Socket.IO event handlers
-
-            // When 'start' event is received from server
+           
             socket.on('start', () => {
-                // Clear canvas and redraw maze and game elements
                 ctx.clearRect(0, 0, size, size);
+
                 blockSize = size/gridSize;
                 drawMaze();
                 drawBall(x, y, '#c80000');
                 drawBall(EndX, EndY, 'black');
                 drawTraps();
                 drawBoosts();
+
                 console.log(`Start received`);
             });
-
-            // When 'getInitialData' event is received from server
+            
             socket.on('getInitialData', (data) => {
-                // Initialize game data and check if client is the host
                 vector2D = data.vector2D;
                 gridSize = data.gridSize;
                 x = data.x;
@@ -158,29 +170,32 @@
                 traps = data.traps;
                 boosts = data.boosts;
 
-                // Adjust UI based on host status
                 if (data.host) {
+
                     console.log('This client is host.')
 
-                    // Show/hide buttons based on host/client role
                     const btnPermission = document.getElementById('btnPermission');
                     btnPermission.style.display = 'none';
+
                     const restartButton = document.getElementById('restartButton');
                     restartButton.style.display = 'block';
+
                     const startButton = document.getElementById('startButton');
                     startButton.style.display = 'block';
+
                     const opposeButton = document.getElementById('opposeButton');
                     opposeButton.style.display = 'none';
+
                     const defendButton = document.getElementById('defendButton');
                     defendButton.style.display = 'none';
 
-                    // Display initial alert message for the host
                     alert(`Choose 'Attack!' or 'Defend!' \n - Attackers aim for the hole.\n - Defenders sabotage them.\n - Webs slow you down for 5 seconds.\n - Gold boosts add 5s.`);
                 }
             });
 
-            // Draw maze walls on canvas
+
             function drawMaze() {
+
                 for (let i = 0; i < vector2D.length; i++) {
                     for (let j = 0; j < vector2D[i].length; j++) {
                         if (vector2D[i][j] == 1) {
@@ -189,73 +204,180 @@
                     }
                 }
             }
-
-            // Draw a square at specific position on canvas
+            
             function drawSquare(xPos, yPos, color) {
                 ctx.fillStyle = color;
                 ctx.fillRect(xPos * blockSize, yPos * blockSize, blockSize, blockSize);
             }
 
-            // Draw traps (yellow balls) on canvas
             function drawTraps() {
                 for (let trap of traps) {
                     const xPos = trap[0];
                     const yPos = trap[1];
-                    drawBall(xPos, yPos, 'yellow');
+                    drawBall(xPos, yPos, 'yellow'); // Replace 'red' with your desired color
                 }
             }
 
-            // Draw boosts (custom balls) on canvas
             function drawBoosts() {
                 for (let boost of boosts) {
                     const xPos = boost[0];
                     const yPos = boost[1];
-                    drawBall(xPos, yPos, 'boost');
+                    drawBall(xPos, yPos, 'boost'); // Replace 'red' with your desired color
                 }
             }
 
-            // Draw various types of balls (basketball, web, boost) on canvas
             function drawBall(xPos, yPos, color) {
-                // Drawing logic for different ball types
-                // Note: Only 'basketball' and 'web' have specific drawings defined in this example
-            }
+                const centerX = xPos * blockSize + blockSize / 2;
+                const centerY = yPos * blockSize + blockSize / 2;
+                const radius = blockSize / 2 - 2;
 
-            // Handle device orientation data and send to server
+                if (color === '#c80000') {
+                    // Draw basketball
+                    const ballColor = '#FF8C00'; // Basketball orange color
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = ballColor;
+                    ctx.fill();
+                    ctx.closePath();
+
+                    // Draw the vertical line
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY - radius);
+                    ctx.lineTo(centerX, centerY + radius);
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.closePath();
+
+                    // Draw the horizontal line
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - radius, centerY);
+                    ctx.lineTo(centerX + radius, centerY);
+                    ctx.stroke();
+                    ctx.closePath();
+
+                    // Draw the left curve
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, Math.PI / 4, (3 * Math.PI) / 4);
+                    ctx.stroke();
+                    ctx.closePath();
+
+                    // Draw the right curve
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, (5 * Math.PI) / 4, (7 * Math.PI) / 4);
+                    ctx.stroke();
+                    ctx.closePath();
+                } else if (color === 'yellow') {
+                    // Draw cobweb
+                    const webColor = '#000000'; // White color for the cobweb
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fill();
+                    ctx.closePath();
+
+                    ctx.strokeStyle = webColor;
+                    ctx.lineWidth = 1;
+
+                    for (let i = 0; i < 8; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(centerX, centerY);
+                        ctx.lineTo(centerX + radius * Math.cos(i * Math.PI / 4), centerY + radius * Math.sin(i * Math.PI / 4));
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+
+                    for (let i = 1; i < 4; i++) {
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, radius * i / 4, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                } else if (color === 'boost') {
+                    const ballColor = 'orange';
+                    // Create gradient for shading
+                    const gradient = ctx.createRadialGradient(
+                    centerX,
+                    centerY,
+                    radius / 4,
+                    centerX,
+                    centerY,
+                    radius
+                    );
+                    gradient.addColorStop(0, "white"); // Highlight color
+                    gradient.addColorStop(0.5, ballColor); // Main color
+                    gradient.addColorStop(1, "darkorange"); // Shadow color
+
+                    // Draw the ball with gradient
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.closePath();
+
+                    // Add a highlight
+                    ctx.beginPath();
+                    ctx.arc(
+                    centerX - radius / 3,
+                    centerY - radius / 3,
+                    radius / 4,
+                    0,
+                    Math.PI * 2
+                    );
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.5)"; // Highlight color with transparency
+                    ctx.fill();
+                    ctx.closePath();
+                } else {
+                    // Default ball
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+     
+          
             function handleOrientation(event) {
                 let betta = event.beta;
                 let gamma = event.gamma;
+                //give betta and gamma
+
                 data = {beta:betta, gamma:gamma};
+
                 console.log(`Sending beta-gamma data: ${JSON.stringify(data)}`);
 
-                // Emit beta_gamma event to server (offense variable determines frequency)
                 if (offense) {
                     socket.emit('beta_gamma', data);
                     socket.emit('beta_gamma', data);
                     socket.emit('beta_gamma', data);
                 }
+
                 socket.emit('beta_gamma', data);
             }
 
-            // Update player position on canvas based on server data
             socket.on('pos_update', (data) => {
-                // Update UI elements and visual feedback based on server data
+
                 timeleft = Math.round(data.time / 1000);
                 document.getElementById("levelTxt").innerText = `Level ${data.level}`;
+
                 const progressBar = document.getElementById("progress-bar");
+                const loadingText = document.getElementById("loading-text");
                 progressBar.style.width = timeleft + "%";
                 if (timeleft <= 30) {
-                    progressBar.style.backgroundColor = "red";
+                    progressBar.style.backgroundColor = "red"; // Change progress bar color to red
                 } else {
                     progressBar.style.backgroundColor = "#4CAF50";
                 }
+
                 ctx.clearRect(x * blockSize, y * blockSize, blockSize, blockSize);
                 x = data.x;
                 y = data.y;
+
                 drawTraps();
                 drawBall(data.x, data.y, "#c80000");
             });
-
-            // Request permission to use device orientation sensor
+    
             async function requestDeviceOrientation() {
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     try {
@@ -269,18 +391,18 @@
                         alert(error);
                     }
                 } else if ('DeviceOrientationEvent' in window) {
+                    console.log("not iOS");
                     window.addEventListener('deviceorientation', handleOrientation);
                 } else {
-                    alert('Device orientation not supported');
+                    alert('not supported');
                 }
             }
 
-            // Event listener for permission button click
+
             document.getElementById('btnPermission').addEventListener('click', () => {
-                requestDeviceOrientation();
+                requestDeviceOrientation();          
             });
 
-            // Event listeners for control buttons (restart, start, attack, defend)
             document.getElementById('restartButton').addEventListener('click', () => {
                 socket.emit('resetServer');
             });
